@@ -1,7 +1,7 @@
 import './bootstrap.js'
 import CMS, { init } from 'netlify-cms'
 import 'netlify-cms/dist/cms.css'
-import { Control, Preview } from '../src'
+import { i18nEditorControl, i18nEditorPreview } from '../src'
 
 const config = {
 backend: {
@@ -12,32 +12,24 @@ backend: {
  branch: 'main',
 },
 media_folder: 'assets',
-// collections: [{
-//  name: 'test',
-//  label: 'Test',
-//  folder: 'content/i18n',
-//  create: true,
-//  extension: 'json',
-//  editor: {
-//    preview: false,
-//  },
-//  fields: [
-//    {label: "Title", name: "title", widget: "string"},
-//    {label: "Body", name: "body", widget: "code"}
-//   ],
-//  files: [{
-//     file: 'test.json',
-//     name: 'test',
-//     label: 'Test',
-//     fields: [
-//       { name: 'body', label: 'Body', widget: 'code'},
-//       { name: 'title', label: 'Title', widget: 'string'},     
-//     ],
-//  }],  
-// }],
-collections: [{
-  name: 'test',
-  label: 'Test',
+collections: [
+  {
+    name: 'es',
+    label: 'Spanish file',
+    extension: 'json',
+    editor: {
+      preview: false,
+    },
+    create: true, 
+    folder: 'content/i18n',
+    fields: [
+      { label: "Title", name: "title", widget: "string"},
+      { name: 'es', label: 'i18n content', widget: 'i18nEditor'},
+    ],  
+ },
+ {
+  name: 'en',
+  label: 'English file',
   extension: 'json',
   editor: {
     preview: false,
@@ -45,20 +37,13 @@ collections: [{
   create: true, 
   folder: 'content/i18n',
   fields: [
-    {label: "Title", name: "title", widget: "string"},
-    { name: 'test_widget', label: 'Test Widget', widget: 'test'},
+    { label: "Title", name: "title", widget: "string"},
+    { name: 'en', label: 'i18n content', widget: 'i18nEditor'},
   ],  
-  // files: [{
-  //   file: 'test.json',
-  //   name: 'test',
-  //   label: 'Test',
-  //   fields: [
-  //     { name: 'test_widget', label: 'Test Widget', widget: 'test'},
-  //   ],
-  // }],
- }],
+} 
+],
 }
 
-CMS.registerWidget('test', Control, Preview)
+CMS.registerWidget('i18nEditor', i18nEditorControl, i18nEditorPreview)
 
 init({ config })

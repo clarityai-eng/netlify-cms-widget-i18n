@@ -1,9 +1,9 @@
-import Control from './Control'
-import Preview from './Preview'
+import i18nEditorControl from './i18nEditorControl'
+import i18nEditorPreview from './i18nEditorPreview'
 
 if (typeof window !== 'undefined') {
-  window.Control = Control
-  window.Preview = Preview
+  window.i18nEditorControl = i18nEditorControl
+  window.i18nEditorPreview = i18nEditorPreview
 }
 
-export { Control, Preview }
+export { i18nEditorControl, i18nEditorPreview }

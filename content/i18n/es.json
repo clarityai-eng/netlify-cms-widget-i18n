@@ -1,6 +1,4 @@
 {
   "title": "es",
-  "test_widget": {
-    "field1": "tsext1"
-  }
+  "es": "{\"MY_KEY\":\"My value\"}"
 }

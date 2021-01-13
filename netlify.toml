@@ -1,6 +1,6 @@
 [build]
   publish = "public/"
-  command = "yarn demo"
+  command = "npm run build"
 
 [[redirects]]
   from = "/demo"

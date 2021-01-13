@@ -10,7 +10,7 @@ backend: {
 //  name: 'github',
 //  repo: 'arturogalan/i18n-netlify-widget',
 },
-media_folder: 'content/i18n',
+media_folder: 'assets',
 // collections: [{
 //  name: 'test',
 //  label: 'Test',

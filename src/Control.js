@@ -19,10 +19,9 @@ import PropTypes from 'prop-types';
        value,
        onChange,
        classNameWrapper,
-       collection,
      } = this.props;
-
-     const collectionProps = collection._root.entries;
+     console.log(this.props);
+    //  const collectionProps = collection._root.entries;
 
      return (
        <section>

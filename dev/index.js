@@ -9,7 +9,7 @@ backend: {
  repo: 'arturogalan/i18n-netlify-widget',
 //  login: false,
 },
-media_folder: 'assets',
+media_folder: 'content/assets',
 collections: [{
  name: 'test',
  label: 'Test',

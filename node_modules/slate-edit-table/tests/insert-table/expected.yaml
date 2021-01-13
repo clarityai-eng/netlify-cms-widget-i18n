@@ -1,0 +1,45 @@
+document:
+  nodes:
+    - kind: block
+      type: paragraph
+      nodes:
+        - kind: text
+          leaves:
+            - text: "Before"
+    - kind: block
+      type: table
+      data:
+          align:
+              - left
+              - left
+      nodes:
+        - kind: block
+          type: table_row
+          nodes:
+            - kind: block
+              type: table_cell
+              nodes:
+                - kind: text
+                  leaves:
+                    - text: ""
+            - kind: block
+              type: table_cell
+              nodes:
+                - kind: text
+                  leaves:
+                    - text: ""
+        - kind: block
+          type: table_row
+          nodes:
+            - kind: block
+              type: table_cell
+              nodes:
+                - kind: text
+                  leaves:
+                    - text: ""
+            - kind: block
+              type: table_cell
+              nodes:
+                - kind: text
+                  leaves:
+                    - text: ""

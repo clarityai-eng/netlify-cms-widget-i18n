@@ -1,0 +1,40 @@
+
+document:
+  nodes:
+
+  - kind: block
+    type: paragraph
+    nodes:
+      - kind: text
+        leaves:
+          - text: 'Blah blah'
+
+  - kind: block
+    type: paragraph
+    nodes:
+      - kind: text
+        key: 'start'
+        leaves:
+          - text: 'First item'
+
+  - kind: block
+    type: paragraph
+    nodes:
+      - kind: text
+        key: 'end'
+        leaves:
+          - text: 'Second item'
+
+  - kind: block
+    type: paragraph
+    nodes:
+      - kind: text
+        leaves:
+          - text: 'Blah blah'
+
+selection:
+  anchorKey: 'start'
+  anchorOffset: 2
+  focusKey: 'end'
+  focusOffset: 4
+  isFocused: true

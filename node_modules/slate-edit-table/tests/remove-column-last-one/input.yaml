@@ -1,0 +1,36 @@
+document:
+  nodes:
+    - kind: block
+      type: table
+      data:
+        align:
+          - left
+      nodes:
+        - kind: block
+          type: table_row
+          nodes:
+            - kind: block
+              type: table_cell
+              key: '_cursor_'
+              nodes:
+                - kind: text
+                  leaves:
+                    - text: "Col 0, Row 0"
+        - kind: block
+          type: table_row
+          nodes:
+            - kind: block
+              type: table_cell
+              nodes:
+                - kind: text
+                  leaves:
+                    - text: "Col 0, Row 1"
+        - kind: block
+          type: table_row
+          nodes:
+            - kind: block
+              type: table_cell
+              nodes:
+                - kind: text
+                  leaves:
+                    - text: "Col 0, Row 2"

@@ -1,0 +1,46 @@
+# Same as input
+document:
+  nodes:
+    - kind: block
+      type: ol_list
+      nodes:
+        # Nested list
+        - kind: block
+          type: list_item
+          nodes:
+            - kind: block
+              type: paragraph
+              nodes:
+                - kind: text
+                  leaves:
+                    - text: "Nested list"
+            - kind: block
+              type: ul_list
+              nodes:
+                - kind: block
+                  type: list_item
+                  nodes:
+                    - kind: block
+                      type: paragraph
+                      nodes:
+                        - kind: text
+                          leaves:
+                            - text: "1.1"
+                - kind: block
+                  type: list_item
+                  nodes:
+                    - kind: block
+                      type: paragraph
+                      nodes:
+                        - kind: text
+                          leaves:
+                            - text: "1.2"
+        - kind: block
+          type: list_item
+          nodes:
+            - kind: block
+              type: paragraph
+              nodes:
+                - kind: text
+                  leaves:
+                    - text: "2"

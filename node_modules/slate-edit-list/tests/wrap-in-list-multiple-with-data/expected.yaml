@@ -1,0 +1,40 @@
+document:
+  nodes:
+    - kind: block
+      type: paragraph
+      nodes:
+        - kind: text
+          leaves:
+            - text: 'Blah blah'
+
+    - kind: block
+      type: ul_list
+      data:
+        style:
+          listStyleType: 'disc'
+      nodes:
+        - kind: block
+          type: list_item
+          nodes:
+            - kind: block
+              type: paragraph
+              nodes:
+                - kind: text
+                  leaves:
+                    - text: 'First item'
+        - kind: block
+          type: list_item
+          nodes:
+            - kind: block
+              type: paragraph
+              nodes:
+                - kind: text
+                  leaves:
+                    - text: 'Second item'
+
+    - kind: block
+      type: paragraph
+      nodes:
+        - kind: text
+          leaves:
+            - text: 'Blah blah'

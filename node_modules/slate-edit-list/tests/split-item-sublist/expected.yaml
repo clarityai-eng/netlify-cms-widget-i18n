@@ -1,0 +1,44 @@
+document:
+  nodes:
+    - kind: block
+      type: ol_list
+      nodes:
+        - kind: block
+          type: list_item
+          nodes:
+            - kind: block
+              type: paragraph
+              nodes:
+                - kind: text
+                  leaves:
+                    - text: It
+        - kind: block
+          type: list_item
+          nodes:
+            - kind: block
+              type: paragraph
+              nodes:
+                - kind: text
+                  leaves:
+                    - text: em 1
+            - kind: block
+              type: ol_list
+              nodes:
+                - kind: block
+                  type: list_item
+                  nodes:
+                    - kind: block
+                      type: paragraph
+                      nodes:
+                        - kind: text
+                          leaves:
+                            - text: Item 1.1
+                - kind: block
+                  type: list_item
+                  nodes:
+                    - kind: block
+                      type: paragraph
+                      nodes:
+                        - kind: text
+                          leaves:
+                            - text: Item 1.2

@@ -5,10 +5,10 @@ import { Control, Preview } from '../src'
 
 const config = {
 backend: {
-  name: 'test-repo',
-  login: false,
-//  name: 'github',
-//  repo: 'arturogalan/i18n-netlify-widget',
+  // name: 'test-repo',
+  // login: false,
+ name: 'github',
+ repo: 'arturogalan/i18n-netlify-widget',
 },
 media_folder: 'assets',
 // collections: [{

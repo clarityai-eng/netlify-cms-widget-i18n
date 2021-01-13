@@ -5,27 +5,57 @@ import { Control, Preview } from '../src'
 
 const config = {
 backend: {
- name: 'github',
- repo: 'arturogalan/i18n-netlify-widget',
-//  login: false,
+  name: 'test-repo',
+  login: false,
+//  name: 'github',
+//  repo: 'arturogalan/i18n-netlify-widget',
 },
-media_folder: 'content/assets',
-collections: [{
- name: 'test',
- label: 'Test',
- folder: 'content/i18n',
- create: true,
- extension: 'json',
- fields: [{label: "Title", name: "title", widget: "string"}],
+media_folder: 'content/i18n',
+// collections: [{
+//  name: 'test',
+//  label: 'Test',
+//  folder: 'content/i18n',
+//  create: true,
+//  extension: 'json',
+//  editor: {
+//    preview: false,
+//  },
+//  fields: [
+//    {label: "Title", name: "title", widget: "string"},
+//    {label: "Body", name: "body", widget: "code"}
+//   ],
 //  files: [{
-//    file: 'test.json',
-//    name: 'en_file',
-//    label: 'English file',
-//    fields: [
-//      { name: 'test_widget', label: 'i18 editor', widget: 'test'},
-//    ],
-//  }],
-}],
+//     file: 'test.json',
+//     name: 'test',
+//     label: 'Test',
+//     fields: [
+//       { name: 'body', label: 'Body', widget: 'code'},
+//       { name: 'title', label: 'Title', widget: 'string'},     
+//     ],
+//  }],  
+// }],
+collections: [{
+  name: 'test',
+  label: 'Test',
+  extension: 'json',
+  editor: {
+    preview: false,
+  },
+  create: true, 
+  folder: 'content/i18n',
+  fields: [
+    {label: "Title", name: "title", widget: "string"},
+    { name: 'test_widget', label: 'Test Widget', widget: 'test'},
+  ],  
+  // files: [{
+  //   file: 'test.json',
+  //   name: 'test',
+  //   label: 'Test',
+  //   fields: [
+  //     { name: 'test_widget', label: 'Test Widget', widget: 'test'},
+  //   ],
+  // }],
+ }],
 }
 
 CMS.registerWidget('test', Control, Preview)

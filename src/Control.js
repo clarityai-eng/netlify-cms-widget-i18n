@@ -23,12 +23,12 @@ import PropTypes from 'prop-types';
      } = this.props;
 
      const collectionProps = collection._root.entries;
-     
+
      return (
        <section>
        <h1>i18n JSON editor</h1>
        <table>
-          {[1,2,3].map(column => <tr>{column}</tr>)}
+          {[1,2,3].map(column => <tr key={column}>{column}</tr>)}
       </table>
        <input
          type="text"

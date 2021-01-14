@@ -1,4 +1,13 @@
 {
   "title": "Spanish file",
-  "es": "{\"KEY_ES\":\"VALUE\"}"
+  "es": [
+    {
+      "key": "KEY_1",
+      "value": "OTHER"
+    },
+    {
+      "key": "KEY_ES",
+      "value": "VALUE"
+    }
+  ]
 }

@@ -1,13 +1,23 @@
 {
   "title": "Spanish file",
-  "es": [
-    {
-      "key": "KEY_1",
-      "value": "OTHER"
+  "es": {
+    "size": "2",
+    "_origin": 0,
+    "_capacity": 2,
+    "_level": 5,
+    "_root": null,
+    "_tail": {
+      "array": [
+        {
+          "key": "KEY_1",
+          "value": "OTHER"
+        },
+        {
+          "key": "KEY_ES",
+          "value": "VALUE"
+        }
+      ]
     },
-    {
-      "key": "KEY_ES",
-      "value": "VALUE"
-    }
-  ]
+    "__altered": false
+  }
 }

@@ -1,9 +1,6 @@
 {
   "title": "Spanish file",
-  "es": [
-    {
-      "key": "size",
-      "value": 7
-    }
-  ]
+  "es": {
+    "size": 1
+  }
 }

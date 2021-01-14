@@ -34,7 +34,10 @@
     "webpack-serve": "0.3.1"
   },
   "dependencies": {
-    "prop-types": "^15.7.2"
+    "@handsontable/react": "^4.0.0",
+    "handsontable": "^8.2.0",
+    "prop-types": "^15.7.2",
+    "react-spreadsheet": "^0.5.0"
   },
   "peerDependencies": {
     "react": "^16.13.0"

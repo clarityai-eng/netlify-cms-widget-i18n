@@ -3,6 +3,7 @@ import React from 'react';
 import { HotTable, HotColumn } from '@handsontable/react';
 import Handsontable from 'handsontable';
 import 'handsontable/dist/handsontable.full.css';
+import { Map } from 'immutable';
 
  export default class i18nEditorControl extends React.Component {
   constructor(props) {
@@ -79,7 +80,10 @@ import 'handsontable/dist/handsontable.full.css';
     //  const collectionProps = collection._root.entries;
     const fieldName = field._root.entries[0][1];
     let stateValue = {};
-    debugger;
+
+
+    // const fieldName2 = field.get('name');
+    // const fieldValue = value && Map.isMap(value) ? value.get(fieldName) : value;
     if (typeof value === 'string') {
       const tempObj = JSON.parse(value || '{}');
       stateValue = Object.entries(tempObj).map(([key, value]) => ({key: key || '', value}));
@@ -99,8 +103,6 @@ import 'handsontable/dist/handsontable.full.css';
     if (Array.isArray(value)) {
       stateValue = value;
     }
-    console.log(fieldName, stateValue);
-    // const rows = Object.entries(stateValue).map(([key, value]) => ({key: key || '', value}));
     
     const manageChange = (data) => {
       if(data && data[0]) {

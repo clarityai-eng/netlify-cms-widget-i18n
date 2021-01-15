@@ -26,6 +26,7 @@ import { Map } from 'immutable';
     this.state = {isInError: false};
     this.errorDesc = [];
     this.lastChanges = [];
+    this.stateValue;
     const getErrorRowOrCreate = (errorsArray, index)=> {
       let found = getErrorRow(errorsArray, index);
       if (!found) {
@@ -40,7 +41,7 @@ import { Map } from 'immutable';
     this.isValid = ()=>{
       return this.errorDesc.length ? { error: 'Your error message.' } : true;
     };
-    this.checkLastChangeIsValid = (stateValue) => {
+    this.checkLastChangeIsValid = () => {
       const hasDuplicate = (arr)=> {
         var hash = {};
         var hasDuplicate = false;
@@ -64,7 +65,7 @@ import { Map } from 'immutable';
         if (!row.key) {
           foundErrors.push(`Key cannot be null in row ${index + 1}`);
         }
-        if(hasDuplicate(stateValue)) {
+        if(hasDuplicate(this.stateValue)) {
           foundErrors.push(`Key cannot be duplicated in row ${index + 1}`);
         } else {
           // Remove the dupe error in other rows
@@ -78,7 +79,7 @@ import { Map } from 'immutable';
           this.setState({isInError: true});
           return false;
         } else {
-          this.errorDesc = this.errorDesc.filter((el)=> el.index !== index)
+          this.errorDesc = this.errorDesc.filter((el)=> el.index !== index && el.errors.length > 0)
           console.log('length', this.errorDesc, this.errorDesc.length)
           if (this.errorDesc.length > 0) {
             this.setState({isInError: true});
@@ -114,49 +115,48 @@ import { Map } from 'immutable';
     } = this.props;
     //  const collectionProps = collection._root.entries;
     const fieldName = field._root.entries[0][1];
-    let stateValue = {};
-
     // const fieldName2 = field.get('name');
     // const fieldValue = value && Map.isMap(value) ? value.get(fieldName) : value;
     if (typeof value === 'string') {
       const tempObj = JSON.parse(value || '{}');
-      stateValue = Object.entries(tempObj).map(([key, value]) => ({key: key || '', value}));
+      this.stateValue = Object.entries(tempObj).map(([key, value]) => ({key: key || '', value}));
     }
     if (typeof value === 'object' && value !== null) {
       // When coming from file git read, the value Object has some entries that we dont want to map
       if(value._root) {
-        stateValue = value._root.entries.map(([key, value]) => ({key: key || '', value}));
+        this.stateValue = value._root.entries.map(([key, value]) => ({key: key || '', value}));
       // When coming from updates in the table component, we map all the entries
       } else {
-        stateValue = Object.entries(value).map(([key, value]) => ({key: key || '', value}));
+        this.stateValue = Object.entries(value).map(([key, value]) => ({key: key || '', value}));
       }
     }
     // When is not valid, it can be for duplicate keys, the value remains as an array of objects
     // If we convert to an object, the we lose the duplicate keys, but we want the user to be able
     // to edit it
     if (Array.isArray(value)) {
-      stateValue = value;
+      this.stateValue = value;
     }
     const handleBefore = ()=> {
-      debugger;
+      // debugger;
     }
     const handleChange = (data) => {
       if(data && data[0]) {
         let index,colName,oldValue,newValue;
         [index,colName,oldValue,newValue] = data[0];
-        this.lastChanges = {index,colName,oldValue,newValue,row: stateValue[index]};
+        this.lastChanges = {index,colName,oldValue,newValue,row: this.stateValue[index]};
         console.log('saved lastchanges',this.lastChanges)
-        stateValue[index][colName] = newValue;
-        if (this.checkLastChangeIsValid(stateValue)) {
+        this.stateValue[index][colName] = newValue;
+        onChange(this.stateValue)
+        if (this.checkLastChangeIsValid()) {
           let finalObjectValue = {};
-          for (var i=0; i < stateValue.length; i++) {
-            finalObjectValue[stateValue[i].key || ''] = stateValue[i].value;
+          for (var i=0; i < this.stateValue.length; i++) {
+            finalObjectValue[this.stateValue[i].key || ''] = this.stateValue[i].value;
           }
           onChange(finalObjectValue)
         } 
-        else {
-          onChange(stateValue)
-        }
+        // else {
+        //   onChange(this.stateValue)
+        // }
       }
     }
     const handleRemoveRow = (index,amount,rows) => {
@@ -164,8 +164,8 @@ import { Map } from 'immutable';
       // When removing isValid, so we transform into object and call onChange
       // TODO if is the last row then isValid = false?
       let finalObjectValue = {};
-      for (var i=0; i < stateValue.length; i++) {
-        finalObjectValue[stateValue[i].key || ''] = stateValue[i].value;
+      for (var i=0; i < this.stateValue.length; i++) {
+        finalObjectValue[this.stateValue[i].key || ''] = this.stateValue[i].value;
       }
       onChange(finalObjectValue)
     }
@@ -179,12 +179,12 @@ import { Map } from 'immutable';
         {errorDesc.map(errorRow => errorRow.errors.map(error => <tr key={error}>{error}</tr>))}
       </div>
       }
-      <span>{typeof stateValue}</span>
-      <span>{stateValue.length}</span>
+      <span>{typeof this.stateValue}</span>
+      <span>{this.stateValue.length}</span>
       <div id="hot-app">
         <HotTable
           settings={this.hotSettings}
-          data={stateValue} 
+          data={this.stateValue} 
           colHeaders={true} 
           rowHeaders={true} 
           width="800" height="300" 

@@ -38,8 +38,23 @@ import { Map } from 'immutable';
       return errorsArray.find((el)=> el.index === index);
     }
     this.isValid = ()=>{
-      // Do internal validation
-      // this.errorDesc = [];
+      return this.errorDesc.length ? { error: 'Your error message.' } : true;
+    };
+    this.checkLastChangeIsValid = (stateValue) => {
+      const hasDuplicate = (arr)=> {
+        var hash = {};
+        var hasDuplicate = false;
+         arr.forEach((val)=> {
+           if (hash[val.key]) {
+             hasDuplicate = true;
+             return;
+           }
+           hash[val.key] = true;
+        });
+        return hasDuplicate;
+      }
+      
+      
       const {index,colName,oldValue,newValue,row} = this.lastChanges;
       if (row) {
         const foundErrors = [];
@@ -49,17 +64,33 @@ import { Map } from 'immutable';
         if (!row.key) {
           foundErrors.push(`Key cannot be null in row ${index + 1}`);
         }
+        if(hasDuplicate(stateValue)) {
+          foundErrors.push(`Key cannot be duplicated in row ${index + 1}`);
+        } else {
+          // Remove the dupe error in other rows
+          this.errorDesc.forEach((errorRow)=> {
+            errorRow.errors = errorRow.errors.filter((error)=> !error.includes('duplicated'))
+          })
+        }
         if (foundErrors.length){
           const errorRow = getErrorRowOrCreate(this.errorDesc, index);
           errorRow.errors = foundErrors;
           this.setState({isInError: true});
+          return false;
         } else {
-          this.errorDesc = this.errorDesc.filter((el)=> el.index === index)
-          this.setState({isInError: false});
+          this.errorDesc = this.errorDesc.filter((el)=> el.index !== index)
+          console.log('length', this.errorDesc, this.errorDesc.length)
+          if (this.errorDesc.length > 0) {
+            this.setState({isInError: true});
+            return false;
+          } else {
+            this.setState({isInError: false});
+            return true;
+          }
+          // this.setState({isInError: false});
         }
       }
-      return this.errorDesc.length ? { error: 'Your error message.' } : true;
-    };
+    }
   }
 
    static propTypes = {
@@ -85,7 +116,6 @@ import { Map } from 'immutable';
     const fieldName = field._root.entries[0][1];
     let stateValue = {};
 
-
     // const fieldName2 = field.get('name');
     // const fieldValue = value && Map.isMap(value) ? value.get(fieldName) : value;
     if (typeof value === 'string') {
@@ -107,7 +137,9 @@ import { Map } from 'immutable';
     if (Array.isArray(value)) {
       stateValue = value;
     }
-    
+    const handleBefore = ()=> {
+      debugger;
+    }
     const handleChange = (data) => {
       if(data && data[0]) {
         let index,colName,oldValue,newValue;
@@ -115,13 +147,14 @@ import { Map } from 'immutable';
         this.lastChanges = {index,colName,oldValue,newValue,row: stateValue[index]};
         console.log('saved lastchanges',this.lastChanges)
         stateValue[index][colName] = newValue;
-        if (this.isValid()) {
+        if (this.checkLastChangeIsValid(stateValue)) {
           let finalObjectValue = {};
           for (var i=0; i < stateValue.length; i++) {
             finalObjectValue[stateValue[i].key || ''] = stateValue[i].value;
           }
           onChange(finalObjectValue)
-        } else {
+        } 
+        else {
           onChange(stateValue)
         }
       }
@@ -138,16 +171,16 @@ import { Map } from 'immutable';
     }
     const {isInError} = this.state;
     const errorDesc = this.errorDesc;
-    debugger;
     return (
       <section>
       {isInError &&
       <div class="error-list">
-        <span>You have this errors in the file:</span>
+        <span>You have this errors in the file 🤕:</span>
         {errorDesc.map(errorRow => errorRow.errors.map(error => <tr key={error}>{error}</tr>))}
       </div>
       }
-
+      <span>{typeof stateValue}</span>
+      <span>{stateValue.length}</span>
       <div id="hot-app">
         <HotTable
           settings={this.hotSettings}
@@ -158,6 +191,7 @@ import { Map } from 'immutable';
           licenseKey="non-commercial-and-evaluation" 
           afterChange={handleChange}
           afterRemoveRow={handleRemoveRow}
+          beforeChange={handleBefore}
         >
         <HotColumn title="Key" data="key"/>
         <HotColumn title="Value" data="value"/>

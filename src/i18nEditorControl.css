@@ -1,0 +1,5 @@
+.error-list {
+  position: absolute;
+  right: 1rem;
+  border: solid 1px grey;
+}

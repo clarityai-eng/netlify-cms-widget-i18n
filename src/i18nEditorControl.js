@@ -3,6 +3,8 @@ import React from 'react';
 import { HotTable, HotColumn } from '@handsontable/react';
 import Handsontable from 'handsontable';
 import 'handsontable/dist/handsontable.full.css';
+import './i18nEditorControl.css';
+
 import { Map } from 'immutable';
 
  export default class i18nEditorControl extends React.Component {
@@ -18,38 +20,41 @@ import { Map } from 'immutable';
           },
           'row_below': {},
           'remove_row': {},
-          // 'separator': Handsontable.plugins.ContextMenu.SEPARATOR,
-          // 'clear_custom': {
-          //   name: 'Clear all cells (custom)',
-          //   callback: function() {
-          //     this.clear();
-          //   }
-          // }
         }
       },
-      // afterChange: (changes) => {
-      //     console.log(changes)
-
-      // }
     };
     this.state = {isInError: false};
     this.errorDesc = [];
     this.lastChanges = [];
+    const getErrorRowOrCreate = (errorsArray, index)=> {
+      let found = getErrorRow(errorsArray, index);
+      if (!found) {
+        found = {index, errors: []};
+        errorsArray.push(found);
+      }
+      return found;
+    }
+    const getErrorRow = (errorsArray, index)=> {
+      return errorsArray.find((el)=> el.index === index);
+    }
     this.isValid = ()=>{
       // Do internal validation
-      this.errorDesc = [];
-      console.log('last changesssss:',this.lastChanges);
+      // this.errorDesc = [];
       const {index,colName,oldValue,newValue,row} = this.lastChanges;
       if (row) {
+        const foundErrors = [];
         if (!row.value) {
-          this.errorDesc.push(`Value cannot be null in row ${index + 1}`);
+          foundErrors.push(`Value cannot be null in row ${index + 1}`);
         }
         if (!row.key) {
-          this.errorDesc.push(`Key cannot be null in row ${index + 1}`);
+          foundErrors.push(`Key cannot be null in row ${index + 1}`);
         }
-        if (this.errorDesc.length){
+        if (foundErrors.length){
+          const errorRow = getErrorRowOrCreate(this.errorDesc, index);
+          errorRow.errors = foundErrors;
           this.setState({isInError: true});
         } else {
+          this.errorDesc = this.errorDesc.filter((el)=> el.index === index)
           this.setState({isInError: false});
         }
       }
@@ -57,7 +62,6 @@ import { Map } from 'immutable';
     };
   }
 
-  // state = { rows };
    static propTypes = {
      onChange: PropTypes.func.isRequired,
      forID: PropTypes.string,
@@ -104,7 +108,7 @@ import { Map } from 'immutable';
       stateValue = value;
     }
     
-    const manageChange = (data) => {
+    const handleChange = (data) => {
       if(data && data[0]) {
         let index,colName,oldValue,newValue;
         [index,colName,oldValue,newValue] = data[0];
@@ -122,7 +126,7 @@ import { Map } from 'immutable';
         }
       }
     }
-    const manageRemoveRow = (index,amount,rows) => {
+    const handleRemoveRow = (index,amount,rows) => {
       console.log('removing', index, rows)
       // When removing isValid, so we transform into object and call onChange
       // TODO if is the last row then isValid = false?
@@ -134,9 +138,15 @@ import { Map } from 'immutable';
     }
     const {isInError} = this.state;
     const errorDesc = this.errorDesc;
+    debugger;
     return (
       <section>
-      {isInError && errorDesc.map(error => <tr key={error}>{error}</tr>)}
+      {isInError &&
+      <div class="error-list">
+        <span>You have this errors in the file:</span>
+        {errorDesc.map(errorRow => errorRow.errors.map(error => <tr key={error}>{error}</tr>))}
+      </div>
+      }
 
       <div id="hot-app">
         <HotTable
@@ -146,8 +156,8 @@ import { Map } from 'immutable';
           rowHeaders={true} 
           width="800" height="300" 
           licenseKey="non-commercial-and-evaluation" 
-          afterChange={manageChange}
-          afterRemoveRow={manageRemoveRow}
+          afterChange={handleChange}
+          afterRemoveRow={handleRemoveRow}
         >
         <HotColumn title="Key" data="key"/>
         <HotColumn title="Value" data="value"/>

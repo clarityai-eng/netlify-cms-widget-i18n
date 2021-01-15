@@ -2,6 +2,8 @@
   "title": "English file",
   "en": {
     "KEY": "VALUE",
-    "KEY_2": "Value"
+    "KEY_2": "Value",
+    "a": "a",
+    "b": "b"
   }
 }

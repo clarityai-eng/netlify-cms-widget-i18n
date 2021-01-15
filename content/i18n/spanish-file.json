@@ -1,7 +1,25 @@
 {
   "title": "Spanish file",
-  "es": {
-    "size": "12",
-    "as": "a"
-  }
+  "es": [
+    {
+      "key": "size",
+      "value": "12"
+    },
+    {
+      "key": "as",
+      "value": "a"
+    },
+    {
+      "key": "s",
+      "value": "s"
+    },
+    {
+      "key": "s",
+      "value": "s"
+    },
+    {
+      "key": "s",
+      "value": "s"
+    }
+  ]
 }

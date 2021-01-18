@@ -13,6 +13,7 @@ import { Map } from 'immutable';
     this.hotSettings = {
       data: Handsontable.helper.createSpreadsheetData(5, 5),
       colHeaders: true,
+      colWidths: [300, 300],
       contextMenu: {
         items: {
           'row_above': {
@@ -25,12 +26,13 @@ import { Map } from 'immutable';
     };
     this.state = {isInError: false};
     this.errorDesc = [];
+    this.rowsKeys = {};
     this.lastChanges = [];
     this.stateValue;
     const getErrorRowOrCreate = (errorsArray, index)=> {
       let found = getErrorRow(errorsArray, index);
       if (!found) {
-        found = {index, errors: []};
+        found = {index, key: this.stateValue[index].key, errors: []};
         errorsArray.push(found);
       }
       return found;
@@ -38,40 +40,56 @@ import { Map } from 'immutable';
     const getErrorRow = (errorsArray, index)=> {
       return errorsArray.find((el)=> el.index === index);
     }
+    const initializeRowsKeys = ()=> {
+      this.stateValue.forEach((row, index)=> this.rowsKeys[row.key] = [index])
+    }
     this.isValid = ()=>{
       return this.errorDesc.length ? { error: 'Your error message.' } : true;
     };
     this.checkLastChangeIsValid = () => {
-      const hasDuplicate = (arr)=> {
-        var hash = {};
-        var hasDuplicate = false;
-         arr.forEach((val)=> {
-           if (hash[val.key]) {
-             hasDuplicate = true;
-             return;
-           }
-           hash[val.key] = true;
-        });
-        return hasDuplicate;
-      }
-      
-      
-      const {index,colName,oldValue,newValue,row} = this.lastChanges;
-      if (row) {
+      const {index,colName,oldValue,newValue} = this.lastChanges;
+      if (index) {
         const foundErrors = [];
-        if (!row.value) {
-          foundErrors.push(`Value cannot be null in row ${index + 1}`);
+        if (colName === 'value' && !newValue) {
+          foundErrors.push('VALUE_NOT_NULL');
         }
-        if (!row.key) {
-          foundErrors.push(`Key cannot be null in row ${index + 1}`);
-        }
-        if(hasDuplicate(this.stateValue)) {
-          foundErrors.push(`Key cannot be duplicated in row ${index + 1}`);
-        } else {
-          // Remove the dupe error in other rows
-          this.errorDesc.forEach((errorRow)=> {
-            errorRow.errors = errorRow.errors.filter((error)=> !error.includes('duplicated'))
-          })
+        debugger;
+        if (colName === 'key') {
+          if (!newValue) {
+            foundErrors.push('KEY_NOT_NULL');
+          } else {
+            if (!this.rowsKeys.length) initializeRowsKeys();
+            const existingKey = this.rowsKeys[newValue];
+            //hasDuplicate tiene que devolver el index del duplicate
+            if(existingKey) {
+              if (existingKey.length === 1) {
+                const existingKeyIndex = existingKey[0];
+                const found = this.errorDesc.find((el)=> el.index === existingKeyIndex);
+                if (!found) {
+                  found = {duplicateIndex, key: existingKeyIndex, errors: []};
+                  errorsArray.push(found);
+                }
+                found.push('KEY_NOT_NULL');
+              }
+
+              foundErrors.push('KEY_DUPLICATED');
+              existingKey.push(index)
+              // Añadir tb el error duplicado a la key que ya existe si es el primer dupe
+
+            } else if(oldValue && this.rowsKeys[oldValue]) {
+              this.rowsKeys[oldValue] = this.rowsKeys[oldValue] - 1;
+              if (this.rowsKeys[oldValue] === 1) {
+                for (let i = 0; i < this.errorDesc.length; i++) {
+                  const errorRow = this.errorDesc[i];
+                  if (errorRow.key === oldValue) {
+                    errorRow.errors = errorRow.errors.filter((error)=> !error.includes('KEY_DUPLICATED'))
+                    break;
+                  }
+                }
+              }
+            }
+
+          }
         }
         if (foundErrors.length){
           const errorRow = getErrorRowOrCreate(this.errorDesc, index);
@@ -136,16 +154,14 @@ import { Map } from 'immutable';
     if (Array.isArray(value)) {
       this.stateValue = value;
     }
-    const handleBefore = ()=> {
-      // debugger;
-    }
     const handleChange = (data) => {
+      debugger;
       if(data && data[0]) {
         let index,colName,oldValue,newValue;
         [index,colName,oldValue,newValue] = data[0];
         this.lastChanges = {index,colName,oldValue,newValue,row: this.stateValue[index]};
         console.log('saved lastchanges',this.lastChanges)
-        this.stateValue[index][colName] = newValue;
+        // this.stateValue[index][colName] = newValue;
         onChange(this.stateValue)
         if (this.checkLastChangeIsValid()) {
           let finalObjectValue = {};
@@ -154,20 +170,14 @@ import { Map } from 'immutable';
           }
           onChange(finalObjectValue)
         } 
-        // else {
-        //   onChange(this.stateValue)
-        // }
       }
     }
     const handleRemoveRow = (index,amount,rows) => {
-      console.log('removing', index, rows)
-      // When removing isValid, so we transform into object and call onChange
-      // TODO if is the last row then isValid = false?
-      let finalObjectValue = {};
-      for (var i=0; i < this.stateValue.length; i++) {
-        finalObjectValue[this.stateValue[i].key || ''] = this.stateValue[i].value;
-      }
-      onChange(finalObjectValue)
+      // remove the possible errors from that index
+      this.errorDesc = this.errorDesc.filter((el)=> el.index !== index && el.errors.length > 0)
+      setTimeout(()=> this.forceUpdate(), 500);
+      // TODO update indexes of errors and keyMap
+      // this.setState({isInError: true});
     }
     const {isInError} = this.state;
     const errorDesc = this.errorDesc;
@@ -187,11 +197,10 @@ import { Map } from 'immutable';
           data={this.stateValue} 
           colHeaders={true} 
           rowHeaders={true} 
-          width="800" height="300" 
           licenseKey="non-commercial-and-evaluation" 
           afterChange={handleChange}
           afterRemoveRow={handleRemoveRow}
-          beforeChange={handleBefore}
+
         >
         <HotColumn title="Key" data="key"/>
         <HotColumn title="Value" data="value"/>

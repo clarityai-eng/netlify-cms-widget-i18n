@@ -1,25 +1,8 @@
 {
   "title": "Spanish file",
-  "es": [
-    {
-      "key": "size",
-      "value": "12"
-    },
-    {
-      "key": "as",
-      "value": "a"
-    },
-    {
-      "key": "s",
-      "value": "s"
-    },
-    {
-      "key": "s",
-      "value": "s"
-    },
-    {
-      "key": "s",
-      "value": "s"
-    }
-  ]
+  "es": {
+    "TESTa": "B",
+    "TESTs": "1",
+    "TEST": "A"
+  }
 }

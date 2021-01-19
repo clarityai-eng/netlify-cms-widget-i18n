@@ -3,7 +3,8 @@
   "es": {
     "TESTa": "B",
     "TESTs": "1",
-    "TESTw": null,
-    "TEST": "A"
+    "TESTw": "a",
+    "TEST": "A",
+    "TESTq": "RE"
   }
 }

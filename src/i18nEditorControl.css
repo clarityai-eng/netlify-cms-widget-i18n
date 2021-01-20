@@ -1,0 +1,9 @@
+.header-info {
+  display: flex;
+  flex-direction: column;
+  border: dashed 1px grey;
+  margin-bottom: 1rem;
+}
+.italic {
+  font-style: italic;  
+}

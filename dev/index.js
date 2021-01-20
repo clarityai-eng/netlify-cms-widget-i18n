@@ -14,28 +14,31 @@ backend: {
 media_folder: 'assets',
 collections: [
   {
-    name: 'es',
+    name: 'spanish-i18-file',
     label: 'Spanish file',
     extension: 'json',
     editor: {
       preview: false,
     },
     create: true, 
-    folder: 'content/i18n',
+    folder: 'content/i18n/es',
     fields: [
-      { label: "Title", name: "title", widget: "string"},
-      { name: 'es', label: 'i18n content', widget: 'i18nEditor'},
+      { label: "Name of the JSON file (without extension)", name: "title", widget: "string",
+        "pattern": ['^[a-z0-9]+(?:-[a-z0-9]+)*$','A JSON file name can have no spaces or special characters'],
+        "hint": "The JSON file name (do not include folder or file extension) and a field 'name' inside of the JSON file. *NOTE: When modifying an existing file changes in this name only will change the field called 'name' inside the file content.",
+      },
+      { name: 'es', label: 'i18n content', widget: 'i18nEditor', myfield: '{{slug}}'},
     ],  
  },
  {
-  name: 'en',
+  name: 'english-i18-file',
   label: 'English file',
   extension: 'json',
   editor: {
     preview: false,
   },
   create: true, 
-  folder: 'content/i18n',
+  folder: 'content/i18n/en',
   fields: [
     { label: "Title", name: "title", widget: "string"},
     { name: 'en', label: 'i18n content', widget: 'i18nEditor'},

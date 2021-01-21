@@ -12,26 +12,91 @@ import { Map } from 'immutable';
 
   constructor(props) {
     super(props);
-    this.hotSettings = {
-      data: Handsontable.helper.createSpreadsheetData(5, 5),
-      colHeaders: true,
-      colWidths: [300, 400],
-      comments: true,
-      // viewportRowRenderingOffset: 70,
-      contextMenu: {
-        items: {
-          'row_above': {
-            name: 'Insert row above this one (custom name)'
-          },
-          'row_below': {},
-          'remove_row': {},
-        }
-      },
-    };
-    this.hotTableComponent = React.createRef();
+
     this.stateValue = [];
     this.stateKeysCount = {};
     this.stateValidations = [];
+    this.dontRenderFlag = false;
+    this.keySearchText = '';
+    this.valueSearchText = '';
+    this.valueEditRowIndex = null;
+
+      // Event for `keydown` event. Add condition after delay of 200 ms which is counted from time of last pressed key.
+  var debounceFn = Handsontable.helper.debounce( (colIndex, event)=> {
+    var filtersPlugin = this.hotTableComponent.current.hotInstance.getPlugin('filters');
+    filtersPlugin.removeConditions(colIndex);
+    filtersPlugin.addCondition(colIndex, 'contains', [event.target.value]);
+    filtersPlugin.filter();
+    if (colIndex === 0) {
+      this.keySearchText = event.target.value;
+    }
+    if (colIndex === 1) {
+      this.valueSearchText = event.target.value;
+    }
+  }, 200);
+  
+  var addEventListeners = function (input, colIndex) {
+    input.addEventListener('keydown', function(event) {
+      debounceFn(colIndex, event);
+    });
+  };
+
+      // Build elements which will be displayed in header.
+  var getInitializedElements = function(colIndex) {
+    var div = document.createElement('div');
+    var input = document.createElement('input');
+  
+    div.className = 'filterHeader';
+  
+    addEventListeners(input, colIndex);
+  
+    div.appendChild(input);
+  
+    return div;
+  };
+  
+  // Add elements to header on `afterGetColHeader` hook.
+  var addInput = function(col, TH) {
+    // Hooks can return value other than number (for example `columnSorting` plugin use this).
+    if (typeof col !== 'number') {
+      return col;
+    }
+  
+    if (col >= 0 && TH.childElementCount < 2) {
+      TH.appendChild(getInitializedElements(col));
+    }
+  };
+  
+  // Deselect column after click on input.
+  var doNotSelectColumn = function (event, coords) {
+    if (coords.row === -1 && event.target.nodeName === 'INPUT') {
+      event.stopImmediatePropagation();
+      this.deselectCell();
+    }
+  };
+
+
+  this.hotSettings = {
+    data: Handsontable.helper.createSpreadsheetData(5, 5),
+    colHeaders: true,
+    colWidths: [300, 400],
+    comments: true,
+    // viewportRowRenderingOffset: 70,
+    contextMenu: {
+      items: {
+        'row_above': {
+          name: 'Insert row above this one (custom name)'
+        },
+        'row_below': {},
+        'remove_row': {},
+      }
+    },
+    afterGetColHeader: addInput,
+    beforeOnCellMouseDown: doNotSelectColumn,
+    filters: true,   
+  };
+  this.hotTableComponent = React.createRef();
+    
   }
 
    static propTypes = {
@@ -81,22 +146,30 @@ import { Map } from 'immutable';
         delete this.stateKeysCount[key];
       } else if (this.stateKeysCount[key] > 1) {
         this.stateKeysCount[key] = this.stateKeysCount[key] - 1;
+        // return true only if we have changed the status of a previously duplicated key
+        return true;
       } else {
         console.warn('Trying to remove no existing key: ', key);
       }
     }
 
    componentDidMount() {
-    const updateDataInNetlify = () => {
+    const updateDataInNetlify = (index) => {
       //if no errors then call to update to be able to publish changes
       
       if (this.checkNoErrors()) {
+        //Save the edited index row
+        this.valueEditRowIndex = index;
+
+
+
         console.log('No errors, calling netlify')
         let finalObjectValue = {};
         for (var i=0; i < this.stateValue.length; i++) {
           finalObjectValue[this.stateValue[i].key || ''] = this.stateValue[i].value;
         }
         console.log('llamada a change', finalObjectValue)
+        this.dontRenderFlag = true;
         this.props.onChange(finalObjectValue)
       }
     }
@@ -106,49 +179,37 @@ import { Map } from 'immutable';
         // source -> ['edit', 'loadData']
         let index,colName,oldValue,newValue;
         changes && ([index,colName,oldValue,newValue] = changes[0]);
-        if (changes && source === 'edit' && colName === 'key' && oldValue !== newValue) {
-          //after every change, run validation on the "0 column"
-          const instance = this.hotTableComponent.current.hotInstance;
-          const keyIndexes = [];
-          let keyColumnRowsArray = instance.getDataAtCol(0);
-          keyColumnRowsArray.forEach((key, index)=> {
-            if (key === newValue) {
-              keyIndexes.push(index);
+        const instance = this.hotTableComponent.current.hotInstance;
+        if (changes && source === 'edit' && oldValue !== newValue) {
+          if (colName === 'key') {
+            //after every change, run validation on the "0 column"
+            console.log('data',instance.getDataAtRow(index))
+            const keyIndexes = [];
+            let keyColumnRowsArray = instance.getDataAtCol(0);
+            keyColumnRowsArray.forEach((key, index)=> {
+              if (key === newValue) {
+                keyIndexes.push(index);
+              }
+            });
+            const keyAlreadyExists = keyIndexes.length > 1
+            if (keyAlreadyExists) {
+              keyIndexes.forEach((duplicatedKeyIndex)=> {
+                let cell= instance.getCellMeta(duplicatedKeyIndex, 0);
+                cell.valid = false;
+                cell.comment = { value: 'No Duplicate Value allowed !!!'};
+              })
             }
-          });
-          console.log(keyIndexes);
-          const keyAlreadyExists = keyIndexes.length > 1
-          if (keyAlreadyExists) {
-            keyIndexes.forEach((duplicatedKeyIndex)=> {
-              let cell= instance.getCellMeta(duplicatedKeyIndex, 0);
-              cell.valid = false;
-              cell.comment = { value: 'No Duplicate Value allowed !!!'};
-            })
+            this.setKeyCount(newValue, keyIndexes.length);
+            const previouslyDupeKeyChanged = this.removeKeyCount(oldValue);
+            if (keyAlreadyExists || previouslyDupeKeyChanged) {
+              instance.render();
+            }
+            updateDataInNetlify(instance.toPhysicalRow(index));
           }
-          this.setKeyCount(newValue, keyIndexes.length);
-          this.removeKeyCount(oldValue);
-          instance.render();
-          updateDataInNetlify();
-          // keyColumnRowsArray.forEach((value, row)=> {
-          //   let data = Object.assign([], keyColumnRowsArray);
-          //   let index = data.indexOf(value);
-          //   data.splice(index, 1);
-          //   let second_index = data.indexOf(value);
-          //   let cell= instance.getCellMeta(row, 0);
-          //   if (index > -1 && second_index > -1 && !(value == null || value === '')) {
-          //       cell.valid = false
-          //       cell.comment = { value: 'No Duplicate Value allowed !!!'}
-          //       this.stateValidations.push({rowIndexes: [index, second_index], error: 'DUPLICATED'});
-          //   } else {
-          //       cell.valid = true
-          //       cell.comment = ''
-          //   }
-          // });
-          // //force a re-render so the new cell properties show up
-          // updateDataInNetlify();
-          // instance.render()
+          if (colName === 'value') {
+            updateDataInNetlify(instance.toPhysicalRow(index));
+          }
         }
-        
       });
     }
   }
@@ -195,7 +256,6 @@ import { Map } from 'immutable';
       //   console.log('created initial object')
       // }
       if(value._root) {        
-        debugger;
         const receivedObject = JSON.parse(this.props.entry.get('raw'));
         this.stateValue = this.convertToFlatArray(receivedObject[JSONFilePropName]);
       } else {
@@ -205,8 +265,30 @@ import { Map } from 'immutable';
         }
       }
     }
-
-    debugger;
+    
+    //Hack to filter again the table when a proper edit of a row has been done with the table already filtered
+    //Then we call to this.props.onChange() and that forces a re-render and the table loose the filters
+    if (this.keySearchText || this.valueSearchText) {
+      const instance = this.hotTableComponent.current.hotInstance;
+      const filtersPlugin = instance.getPlugin('filters');
+      const addFilter = (index, text)=> {
+        filtersPlugin.removeConditions(index);
+        filtersPlugin.addCondition(index, 'contains', [text]);
+      }
+      
+      if (this.keySearchText) addFilter(0, this.keySearchText);
+      if (this.valueSearchText) addFilter(1, this.valueSearchText);
+      console.log('last edited index', this.valueEditRowIndex);
+      console.log('last edited index', instance.getDataAtRow(this.valueEditRowIndex));
+      console.log('last edited index visual',this.valueEditRowIndex);
+      console.log('last edited index visual', instance.getDataAtRow(instance.toVisualRow(this.valueEditRowIndex)));
+      
+      //Timeout-> Hack to see the table filtered after render
+      //Maybe we can do this in a hook inside the table life-hooks?
+      setTimeout(()=> {
+        filtersPlugin.filter();
+      }, 1)
+    }
     return (
       <section>
         <div

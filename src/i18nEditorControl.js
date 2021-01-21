@@ -41,17 +41,13 @@ import { Map } from 'immutable';
     });
   };
 
-      // Build elements which will be displayed in header.
+  // Build elements which will be displayed in header.
   var getInitializedElements = function(colIndex) {
     var div = document.createElement('div');
     var input = document.createElement('input');
-  
     div.className = 'filterHeader';
-  
     addEventListeners(input, colIndex);
-  
     div.appendChild(input);
-  
     return div;
   };
   
@@ -153,22 +149,22 @@ import { Map } from 'immutable';
       }
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+      //If the table is already filtering, no need to make a render, as this render is being forced by the call to netlify onChange() call.
+      if (this.keySearchText || this.valueSearchText) {
+        return false;
+      }
+      return true;
+    }
    componentDidMount() {
-    const updateDataInNetlify = (index) => {
+    const updateDataInNetlify = () => {
       //if no errors then call to update to be able to publish changes
-      
       if (this.checkNoErrors()) {
-        //Save the edited index row
-        this.valueEditRowIndex = index;
-
-
-
-        console.log('No errors, calling netlify')
         let finalObjectValue = {};
         for (var i=0; i < this.stateValue.length; i++) {
           finalObjectValue[this.stateValue[i].key || ''] = this.stateValue[i].value;
         }
-        console.log('llamada a change', finalObjectValue)
+        console.log('call to netlifyCMS onChange()')
         this.dontRenderFlag = true;
         this.props.onChange(finalObjectValue)
       }
@@ -177,6 +173,7 @@ import { Map } from 'immutable';
     if(this.hotTableComponent.current) {
       this.hotTableComponent.current.hotInstance.addHook('afterChange', (changes, source)=> {
         // source -> ['edit', 'loadData']
+        //instance.toPhysicalRow
         let index,colName,oldValue,newValue;
         changes && ([index,colName,oldValue,newValue] = changes[0]);
         const instance = this.hotTableComponent.current.hotInstance;
@@ -204,10 +201,10 @@ import { Map } from 'immutable';
             if (keyAlreadyExists || previouslyDupeKeyChanged) {
               instance.render();
             }
-            updateDataInNetlify(instance.toPhysicalRow(index));
+            updateDataInNetlify();
           }
           if (colName === 'value') {
-            updateDataInNetlify(instance.toPhysicalRow(index));
+            updateDataInNetlify();
           }
         }
       });
@@ -266,29 +263,36 @@ import { Map } from 'immutable';
       }
     }
     
+    //TODO
+    //Maybe dont call to onChange when creating a row if the table is filtered
+    //Maybe clear the filter when insert a row?
+
     //Hack to filter again the table when a proper edit of a row has been done with the table already filtered
     //Then we call to this.props.onChange() and that forces a re-render and the table loose the filters
-    if (this.keySearchText || this.valueSearchText) {
-      const instance = this.hotTableComponent.current.hotInstance;
-      const filtersPlugin = instance.getPlugin('filters');
-      const addFilter = (index, text)=> {
-        filtersPlugin.removeConditions(index);
-        filtersPlugin.addCondition(index, 'contains', [text]);
-      }
+    // if (this.keySearchText || this.valueSearchText) {
+    //   const instance = this.hotTableComponent.current.hotInstance;
+    //   const filtersPlugin = instance.getPlugin('filters');
+    //   const addFilter = (index, text)=> {
+    //     filtersPlugin.removeConditions(index);
+    //     filtersPlugin.addCondition(index, 'contains', [text]);
+    //   }
       
-      if (this.keySearchText) addFilter(0, this.keySearchText);
-      if (this.valueSearchText) addFilter(1, this.valueSearchText);
-      console.log('last edited index', this.valueEditRowIndex);
-      console.log('last edited index', instance.getDataAtRow(this.valueEditRowIndex));
-      console.log('last edited index visual',this.valueEditRowIndex);
-      console.log('last edited index visual', instance.getDataAtRow(instance.toVisualRow(this.valueEditRowIndex)));
+    //   if (this.keySearchText) addFilter(0, this.keySearchText);
+    //   if (this.valueSearchText) addFilter(1, this.valueSearchText);
+    //   console.log('last edited index', this.valueEditRowIndex);
+    //   console.log('last edited index', instance.getDataAtRow(this.valueEditRowIndex));
+    //   console.log('last edited index visual',this.valueEditRowIndex);
+    //   console.log('last edited index visual', instance.getDataAtRow(instance.toVisualRow(this.valueEditRowIndex)));
       
-      //Timeout-> Hack to see the table filtered after render
-      //Maybe we can do this in a hook inside the table life-hooks?
-      setTimeout(()=> {
-        filtersPlugin.filter();
-      }, 1)
-    }
+    //   //Timeout-> Hack to see the table filtered after render
+    //   //Maybe we can do this in a hook inside the table life-hooks?
+    //   setTimeout(()=> {
+    //     filtersPlugin.filter();
+    //   }, 1)
+    // }
+
+
+
     return (
       <section>
         <div

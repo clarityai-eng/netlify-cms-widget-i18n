@@ -16,7 +16,6 @@ import { Map } from 'immutable';
     this.stateValue = [];
     this.stateKeysCount = {};
     this.stateValidations = [];
-    this.dontRenderFlag = false;
     this.keySearchText = '';
     this.valueSearchText = '';
     this.valueEditRowIndex = null;
@@ -33,7 +32,9 @@ import { Map } from 'immutable';
     if (colIndex === 1) {
       this.valueSearchText = event.target.value;
     }
-  }, 200);
+    this.hotTableComponent.current.hotInstance.scrollViewportTo(0);
+    this.hotTableComponent.current.hotInstance.render();
+  }, 10);
   
   var addEventListeners = function (input, colIndex) {
     input.addEventListener('keydown', function(event) {
@@ -45,9 +46,11 @@ import { Map } from 'immutable';
   var getInitializedElements = function(colIndex) {
     var div = document.createElement('div');
     var input = document.createElement('input');
-    div.className = 'filterHeader';
+    input.placeholder = colIndex === 0 ? 'search key...' : 'search value...'
+    div.className = 'filter-header';
     addEventListeners(input, colIndex);
     div.appendChild(input);
+
     return div;
   };
   
@@ -76,6 +79,8 @@ import { Map } from 'immutable';
     data: Handsontable.helper.createSpreadsheetData(5, 5),
     colHeaders: true,
     colWidths: [300, 400],
+    width: '100%',
+    height: '60vh',
     comments: true,
     // viewportRowRenderingOffset: 70,
     contextMenu: {
@@ -165,7 +170,6 @@ import { Map } from 'immutable';
           finalObjectValue[this.stateValue[i].key || ''] = this.stateValue[i].value;
         }
         console.log('call to netlifyCMS onChange()')
-        this.dontRenderFlag = true;
         this.props.onChange(finalObjectValue)
       }
     }
@@ -173,13 +177,15 @@ import { Map } from 'immutable';
     if(this.hotTableComponent.current) {
       this.hotTableComponent.current.hotInstance.addHook('afterChange', (changes, source)=> {
         // TODO MANAGE DELETE ROW
-        
+
         // source -> ['edit', 'loadData']
         //instance.toPhysicalRow
+        console.log('source->', source);
+        const changeEvents = ['edit', 'CopyPaste.paste']
         let index,colName,oldValue,newValue;
         changes && ([index,colName,oldValue,newValue] = changes[0]);
         const instance = this.hotTableComponent.current.hotInstance;
-        if (changes && source === 'edit' && oldValue !== newValue) {
+        if (changes && changeEvents.includes(source) && oldValue !== newValue) {
           if (colName === 'key') {
             //after every change, run validation on the "0 column"
             console.log('data',instance.getDataAtRow(index))
@@ -199,7 +205,10 @@ import { Map } from 'immutable';
               })
             }
             this.setKeyCount(newValue, keyIndexes.length);
-            const previouslyDupeKeyChanged = this.removeKeyCount(oldValue);
+            let previouslyDupeKeyChanged = false;
+            if (oldValue) {
+              previouslyDupeKeyChanged = this.removeKeyCount(oldValue);
+            }
             if (keyAlreadyExists || previouslyDupeKeyChanged) {
               instance.render();
             }

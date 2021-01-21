@@ -7,3 +7,16 @@
 .italic {
   font-style: italic;  
 }
+.filter-header > input {
+  width: calc(100% - 20px);
+  height: 1.5rem;
+  box-shadow: none;
+  border: 1px solid #CCC;
+  margin: 5px;
+}
+div.filter-header {
+  border-top: 1px solid #CCC;
+}
+.hot-app {
+  overflow: hidden;
+}

@@ -172,6 +172,8 @@ import { Map } from 'immutable';
 
     if(this.hotTableComponent.current) {
       this.hotTableComponent.current.hotInstance.addHook('afterChange', (changes, source)=> {
+        // TODO MANAGE DELETE ROW
+        
         // source -> ['edit', 'loadData']
         //instance.toPhysicalRow
         let index,colName,oldValue,newValue;
@@ -263,36 +265,6 @@ import { Map } from 'immutable';
       }
     }
     
-    //TODO
-    //Maybe dont call to onChange when creating a row if the table is filtered
-    //Maybe clear the filter when insert a row?
-
-    //Hack to filter again the table when a proper edit of a row has been done with the table already filtered
-    //Then we call to this.props.onChange() and that forces a re-render and the table loose the filters
-    // if (this.keySearchText || this.valueSearchText) {
-    //   const instance = this.hotTableComponent.current.hotInstance;
-    //   const filtersPlugin = instance.getPlugin('filters');
-    //   const addFilter = (index, text)=> {
-    //     filtersPlugin.removeConditions(index);
-    //     filtersPlugin.addCondition(index, 'contains', [text]);
-    //   }
-      
-    //   if (this.keySearchText) addFilter(0, this.keySearchText);
-    //   if (this.valueSearchText) addFilter(1, this.valueSearchText);
-    //   console.log('last edited index', this.valueEditRowIndex);
-    //   console.log('last edited index', instance.getDataAtRow(this.valueEditRowIndex));
-    //   console.log('last edited index visual',this.valueEditRowIndex);
-    //   console.log('last edited index visual', instance.getDataAtRow(instance.toVisualRow(this.valueEditRowIndex)));
-      
-    //   //Timeout-> Hack to see the table filtered after render
-    //   //Maybe we can do this in a hook inside the table life-hooks?
-    //   setTimeout(()=> {
-    //     filtersPlugin.filter();
-    //   }, 1)
-    // }
-
-
-
     return (
       <section>
         <div

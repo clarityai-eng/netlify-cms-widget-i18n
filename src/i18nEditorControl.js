@@ -17,6 +17,7 @@ import { Map } from 'immutable';
       colHeaders: true,
       colWidths: [300, 300],
       comments: true,
+      // viewportRowRenderingOffset: 70,
       contextMenu: {
         items: {
           'row_above': {
@@ -109,17 +110,6 @@ import { Map } from 'immutable';
         hasError,
       }
     )
-    if (typeof value === 'object' && value !== null) {
-      if(value._root) {
-        this.stateValue = Array.from(this.props.value.entries()).map(([key, value]) => ({key: key || '', value}));
-        console.log('created initial object')
-      }
-    } else {
-      // Initialize the table object to have at least 1 empty row
-      if(!this.stateValue.length) {
-        this.stateValue.push({key: '', value: ''})
-      }
-    }
     console.log('props',this.props)
     console.log('entry',this.props.entry.get('path'));
     console.log('raw',this.props.entry.get('raw'));
@@ -133,6 +123,52 @@ import { Map } from 'immutable';
     const collectionFieldsArray = JSON.parse(JSON.stringify(this.props.collection.get('fields')));
     const collectioni18EditorWidgetField = collectionFieldsArray.find((el)=> el.widget === 'i18nEditor');
     const JSONFilePropName = collectioni18EditorWidgetField.name;
+    const convertToFlat = (mainObj)=> {
+      let flattenedObj = {};
+      const flatten = (keyToFlatten, path)=> {
+        for (const key in keyToFlatten) {
+          const cumulatePath = `${path ? path + '.' : ''}${key}`;
+          if (typeof keyToFlatten[key] === 'object') {
+            flatten(keyToFlatten[key], cumulatePath)
+          } else {
+            flattenedObj[cumulatePath] = keyToFlatten[key]
+          }
+        }
+      }
+      flatten(mainObj)
+      return flattenedObj;
+    }
+    const convertToFlatArray = (mainObj)=> {
+      let flattenedArray = [];
+      const flatten = (keyToFlatten, path)=> {
+        for (const key in keyToFlatten) {
+          const cumulatePath = `${path ? path + '.' : ''}${key}`;
+          if (typeof keyToFlatten[key] === 'object') {
+            flatten(keyToFlatten[key], cumulatePath)
+          } else {
+            flattenedArray.push({ key: cumulatePath, value: keyToFlatten[key]})
+          }
+        }
+      }
+      flatten(mainObj)
+      return flattenedArray;
+    }
+
+    if (typeof value === 'object' && value !== null) {
+        // if(value._root) {
+        //   this.stateValue = Array.from(this.props.value.entries()).map(([key, value]) => ({key: key || '', value}));
+        //   console.log('created initial object')
+        // }
+      const receivedObject = JSON.parse(this.props.entry.get('raw'));
+      // const flattenedObject = convertToFlat(receivedObject[JSONFilePropName]);
+      // this.stateValue = Object.entries(flattenedObject).map(([key, value]) => ({key: key || '', value}));
+      this.stateValue = convertToFlatArray(receivedObject[JSONFilePropName]);
+    } else {
+      // Initialize the table object to have at least 1 empty row
+      if(!this.stateValue.length) {
+        this.stateValue.push({key: '', value: ''})
+      }
+    }
 
     debugger;
     return (

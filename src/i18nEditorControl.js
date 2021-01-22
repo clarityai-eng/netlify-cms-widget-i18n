@@ -137,6 +137,7 @@ import { Map } from 'immutable';
       this.stateKeysCount[key] = this.stateKeysCount[key] ? this.stateKeysCount[key] + 1 : 1;
     }
     setKeyCount = (key, count)=> {
+      console.log('setting count: ', key, count)
       this.stateKeysCount[key] = count;
     }
     checkNoErrors = () => {
@@ -145,8 +146,12 @@ import { Map } from 'immutable';
     removeKeyCount = (key)=> {
       if (this.stateKeysCount[key] === 1) {
         delete this.stateKeysCount[key];
+        console.log('removed count: ', key)
+
       } else if (this.stateKeysCount[key] > 1) {
         this.stateKeysCount[key] = this.stateKeysCount[key] - 1;
+        console.log('less count: ', key, this.stateKeysCount[key])
+
         // return true only if we have changed the status of a previously duplicated key
         return true;
       } else {
@@ -182,41 +187,45 @@ import { Map } from 'immutable';
         //instance.toPhysicalRow
         console.log('source->', source);
         const changeEvents = ['edit', 'CopyPaste.paste']
-        let index,colName,oldValue,newValue;
-        changes && ([index,colName,oldValue,newValue] = changes[0]);
         const instance = this.hotTableComponent.current.hotInstance;
-        if (changes && changeEvents.includes(source) && oldValue !== newValue) {
-          if (colName === 'key') {
-            //after every change, run validation on the "0 column"
-            console.log('data',instance.getDataAtRow(index))
-            const keyIndexes = [];
-            let keyColumnRowsArray = instance.getDataAtCol(0);
-            keyColumnRowsArray.forEach((key, index)=> {
-              if (key === newValue) {
-                keyIndexes.push(index);
+        if (changes && changeEvents.includes(source)) {
+          let needToRender = false;
+          changes.forEach((change)=> {
+            let index,colName,oldValue,newValue;
+            [index,colName,oldValue,newValue] = change;
+            if (oldValue !== newValue) {
+              if (colName === 'key') {
+                //after every change, run validation on the "0 column"
+                console.log('data',instance.getDataAtRow(index))
+                const keyIndexes = [];
+                let keyColumnRowsArray = instance.getDataAtCol(0);
+                keyColumnRowsArray.forEach((key, index)=> {
+                  if (key === newValue) {
+                    keyIndexes.push(index);
+                  }
+                });
+                const keyAlreadyExists = keyIndexes.length > 1
+                keyIndexes.forEach((duplicatedKeyIndex)=> {
+                  let cell= instance.getCellMeta(duplicatedKeyIndex, 0);
+                  cell.valid = !keyAlreadyExists;
+                  cell.comment = keyAlreadyExists ? { value: 'No Duplicate Value allowed !!!'} : {};
+                })
+
+                this.setKeyCount(newValue, keyIndexes.length);
+                let previouslyDupeKeyChanged = false;
+                if (oldValue) {
+                  previouslyDupeKeyChanged = this.removeKeyCount(oldValue);
+                }
+                if (keyAlreadyExists || previouslyDupeKeyChanged) {
+                  needToRender = true;
+                }
               }
-            });
-            const keyAlreadyExists = keyIndexes.length > 1
-            if (keyAlreadyExists) {
-              keyIndexes.forEach((duplicatedKeyIndex)=> {
-                let cell= instance.getCellMeta(duplicatedKeyIndex, 0);
-                cell.valid = false;
-                cell.comment = { value: 'No Duplicate Value allowed !!!'};
-              })
             }
-            this.setKeyCount(newValue, keyIndexes.length);
-            let previouslyDupeKeyChanged = false;
-            if (oldValue) {
-              previouslyDupeKeyChanged = this.removeKeyCount(oldValue);
-            }
-            if (keyAlreadyExists || previouslyDupeKeyChanged) {
-              instance.render();
-            }
-            updateDataInNetlify();
-          }
-          if (colName === 'value') {
-            updateDataInNetlify();
-          }
+          })
+
+          // Once all the changes proccesed, render and try to save changes if no errors
+          if (needToRender) {instance.render();}
+          updateDataInNetlify();
         }
       });
     }

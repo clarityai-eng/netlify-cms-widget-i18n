@@ -137,7 +137,6 @@ import { Map } from 'immutable';
       this.stateKeysCount[key] = this.stateKeysCount[key] ? this.stateKeysCount[key] + 1 : 1;
     }
     setKeyCount = (key, count)=> {
-      console.log('setting count: ', key, count)
       this.stateKeysCount[key] = count;
     }
     checkNoErrors = () => {
@@ -146,14 +145,10 @@ import { Map } from 'immutable';
     removeKeyCount = (key)=> {
       if (this.stateKeysCount[key] === 1) {
         delete this.stateKeysCount[key];
-        console.log('removed count: ', key)
-
+        return 0;
       } else if (this.stateKeysCount[key] > 1) {
         this.stateKeysCount[key] = this.stateKeysCount[key] - 1;
-        console.log('less count: ', key, this.stateKeysCount[key])
-
-        // return true only if we have changed the status of a previously duplicated key
-        return true;
+        return this.stateKeysCount[key];
       } else {
         console.warn('Trying to remove no existing key: ', key);
       }
@@ -174,57 +169,66 @@ import { Map } from 'immutable';
         for (var i=0; i < this.stateValue.length; i++) {
           finalObjectValue[this.stateValue[i].key || ''] = this.stateValue[i].value;
         }
-        console.log('call to netlifyCMS onChange()')
         this.props.onChange(finalObjectValue)
       }
     }
 
     if(this.hotTableComponent.current) {
+      this.hotTableComponent.current.hotInstance.addHook('afterRemoveRow', (changes, source)=> {
+        // Timeout to evict handsome table error
+        setTimeout(()=> updateDataInNetlify(), 10);
+      });
       this.hotTableComponent.current.hotInstance.addHook('afterChange', (changes, source)=> {
-        // TODO MANAGE DELETE ROW
-
-        // source -> ['edit', 'loadData']
-        //instance.toPhysicalRow
-        console.log('source->', source);
-        const changeEvents = ['edit', 'CopyPaste.paste']
+        if (!changes) { return }
         const instance = this.hotTableComponent.current.hotInstance;
-        if (changes && changeEvents.includes(source)) {
-          let needToRender = false;
+        //instance.toPhysicalRow
+        const changeEvents = ['edit', 'CopyPaste.paste']
+        if (changeEvents.includes(source)) {
           changes.forEach((change)=> {
             let index,colName,oldValue,newValue;
             [index,colName,oldValue,newValue] = change;
             if (oldValue !== newValue) {
               if (colName === 'key') {
-                //after every change, run validation on the "0 column"
-                console.log('data',instance.getDataAtRow(index))
-                const keyIndexes = [];
-                let keyColumnRowsArray = instance.getDataAtCol(0);
-                keyColumnRowsArray.forEach((key, index)=> {
-                  if (key === newValue) {
-                    keyIndexes.push(index);
-                  }
-                });
-                const keyAlreadyExists = keyIndexes.length > 1
-                keyIndexes.forEach((duplicatedKeyIndex)=> {
-                  let cell= instance.getCellMeta(duplicatedKeyIndex, 0);
-                  cell.valid = !keyAlreadyExists;
-                  cell.comment = keyAlreadyExists ? { value: 'No Duplicate Value allowed !!!'} : {};
-                })
-
-                this.setKeyCount(newValue, keyIndexes.length);
-                let previouslyDupeKeyChanged = false;
+                const findKeyIndexes = (keyToFound)=> {
+                  const keyIndexes = [];
+                  let keyColumnRowsArray = instance.getDataAtCol(0);
+                  keyColumnRowsArray.forEach((key, keyIndex)=> {
+                    if (key === keyToFound) {
+                      keyIndexes.push(keyIndex);
+                    }
+                  });
+                  return keyIndexes.length > 1 ? keyIndexes : keyIndexes[0];
+                }
+                const keyAlreadyExists = this.stateKeysCount[newValue];
+                if (keyAlreadyExists) {
+                  const keyIndexes = findKeyIndexes(newValue);
+                  keyIndexes.forEach((duplicatedKeyIndex)=> {
+                    let cell= instance.getCellMeta(duplicatedKeyIndex, 0);
+                    cell.valid = false;
+                    cell.comment = { value: 'No duplicate keys allowed!'};
+                    this.setKeyCount(newValue, keyIndexes.length);
+                  });
+                } else {
+                  let cell= instance.getCellMeta(index, 0);
+                  cell.valid = true;
+                  cell.comment = {};
+                  this.setKeyCount(newValue, 1);
+                }
                 if (oldValue) {
-                  previouslyDupeKeyChanged = this.removeKeyCount(oldValue);
+                  const remainCount = this.removeKeyCount(oldValue);
+                  if (remainCount === 1) {
+                    const oldValueKeyIndex = findKeyIndexes(oldValue);
+                    let cell= instance.getCellMeta(oldValueKeyIndex, 0);
+                    cell.valid = true;
+                    cell.comment = {};
+                  }
                 }
-                if (keyAlreadyExists || previouslyDupeKeyChanged) {
-                  needToRender = true;
-                }
+                // Once all the changes proccesed, render to see changes in affected cells
+                instance.render()
               }
             }
           })
-
-          // Once all the changes proccesed, render and try to save changes if no errors
-          if (needToRender) {instance.render();}
+          // Try to save changes if no errors -> also for 'value' colName changes and remove rows! not only editions of 'key' colname
           updateDataInNetlify();
         }
       });
@@ -242,21 +246,6 @@ import { Map } from 'immutable';
       hasError,
     } = this.props;
 
-    console.log(
-      {
-        forID,
-        value,
-        onChange,
-        classNameWrapper,
-        field,
-        forList,
-        hasError,
-      }
-    )
-    console.log('props',this.props)
-    console.log('entry',this.props.entry.get('path'));
-    // console.log('raw',this.props.entry.get('raw'));
-
     const fileFolder = this.props.collection.get('folder');
     const filePath = this.props.entry.get('path');
     const fileName = this.props.entry.get('slug');
@@ -268,10 +257,6 @@ import { Map } from 'immutable';
     const JSONFilePropName = collectioni18EditorWidgetField.name;
 
     if (typeof value === 'object' && value !== null) {
-      // if(value._root) {
-      //   this.stateValue = Array.from(this.props.value.entries()).map(([key, value]) => ({key: key || '', value}));
-      //   console.log('created initial object')
-      // }
       if(value._root) {        
         const receivedObject = JSON.parse(this.props.entry.get('raw'));
         this.stateValue = this.convertToFlatArray(receivedObject[JSONFilePropName]);

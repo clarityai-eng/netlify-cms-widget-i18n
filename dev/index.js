@@ -1,7 +1,7 @@
 import './bootstrap.js'
 import CMS, { init } from 'netlify-cms'
 import 'netlify-cms/dist/cms.css'
-import { i18nEditorControl, i18nEditorPreview } from '../src'
+import { I18nControl, I18nPreview } from '../src'
 
 const config = {
 backend: {
@@ -47,6 +47,6 @@ collections: [
 ],
 }
 
-CMS.registerWidget('i18nEditor', i18nEditorControl, i18nEditorPreview)
+CMS.registerWidget('i18nEditor', I18nControl, I18nPreview)
 
 init({ config })

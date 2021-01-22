@@ -3,12 +3,12 @@ import React from 'react';
 import { HotTable, HotColumn } from '@handsontable/react';
 import Handsontable from 'handsontable';
 import 'handsontable/dist/handsontable.full.css';
-import './i18nEditorControl.css';
+import './I18nControl.css';
 import { List } from 'immutable';
 
 import { Map } from 'immutable';
 
- export default class i18nEditorControl extends React.Component {
+ export default class I18nControl extends React.Component {
 
   constructor(props) {
     super(props);

@@ -3,7 +3,7 @@
   "es": {
     "ADMIN.ABOUT_TO_DELETE": "You are about to delete <strong>{what}</strong>",
     "ADMIN.ACTIONS": "Actions",
-    "ADMIN.ACTIONSE": "API Key management",
+    "ADMIN.ACTIONSEw": "API Key management",
     "ADMIN.API.COPY_KEY_SECRET.ERROR": "The {concept} can't be copied to your clipboard",
     "ADMIN.API.COPY_KEY_SECRET.SUCCESS": "The {concept} has been copied to your clipboard",
     "ADMIN.API.GENERATE.ERROR": "An error occurred while generating API key with label {label}",

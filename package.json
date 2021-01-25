@@ -1,7 +1,10 @@
 {
-  "name": "i18n-netlify-widget",
+  "name": "netlify-cms-widget-i18n",
   "version": "1.0.0",
-  "description": "A Netlify widget to edit i18n big files",
+  "description": "A Netlify CMS widget to edit and manage i18n files",
+  "contributors": [
+    "Arturo Galan <arturo.galan@gmail.com> (https://arturogalan.com)"
+  ],  
   "keywords": [
     "netlify",
     "netlify-cms",
@@ -11,7 +14,7 @@
     "editor",
     "nested-json"
   ],
-  "homepage": "https://github.com/arturogalan/i18n-netlify-widget#readme",
+  "homepage": "https://github.com/arturogalan/netlify-cms-widget-i18n#readme",
   "license": "MIT",
   "main": "dist/main.js",
   "devDependencies": {

@@ -1,9 +1,12 @@
-import I18nControl from './I18nControl'
-import I18nPreview from './I18nPreview'
+import controlComponent from './I18nControl';
+import previewComponent from './I18nPreview';
 
-if (typeof window !== 'undefined') {
-  window.I18nControl = I18nControl
-  window.I18nPreview = I18nPreview
-}
+const Widget = (opts = {}) => ({
+  name: 'i18n',
+  controlComponent,
+  previewComponent,
+  ...opts,
+});
 
-export { I18nControl, I18nPreview }
+export const NetlifyCmsWidgetI18n = { Widget, controlComponent, previewComponent };
+export default NetlifyCmsWidgetI18n;

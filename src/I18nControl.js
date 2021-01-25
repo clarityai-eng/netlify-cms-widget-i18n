@@ -156,7 +156,7 @@ import { Map } from 'immutable';
 
     shouldComponentUpdate(nextProps, nextState) {
       //If the table is already filtering, no need to make a render, as this render is being forced by the call to netlify onChange() call.
-      if (this.keySearchText || this.valueSearchText) {
+      if (this.keySearchText || this.valueSearchText || !this.checkNoErrors()) {
         return false;
       }
       return true;
@@ -253,7 +253,7 @@ import { Map } from 'immutable';
 
     const isNewRecord = this.props.entry.get('newRecord');
     const collectionFieldsArray = JSON.parse(JSON.stringify(this.props.collection.get('fields')));
-    const collectioni18EditorWidgetField = collectionFieldsArray.find((el)=> el.widget === 'i18nEditor');
+    const collectioni18EditorWidgetField = collectionFieldsArray.find((el)=> el.widget.toLowerCase().includes('i18n'));
     const JSONFilePropName = collectioni18EditorWidgetField.name;
 
     if (typeof value === 'object' && value !== null) {

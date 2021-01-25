@@ -1,6 +1,6 @@
 {
   "name": "netlify-cms-widget-i18n",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A Netlify CMS widget to edit and manage i18n files",
   "contributors": [
     "Arturo Galan <arturo.galan@gmail.com> (https://arturogalan.com)"
@@ -47,9 +47,9 @@
     "react": "^16.13.0"
   },
   "scripts": {
-    "build": "run-p build:*",
-    "build:demo": "webpack --display errors-only --devtool source-map --config webpack.dev.config.js",
+    "build": "cross-env NODE_ENV=production run-p build:*",
+    "build:demo": "webpack --display errors-only --devtool source-map --config webpack.config.js",
     "build:package": "babel src --out-dir dist --source-maps",
-    "start": "webpack-dev-server --config webpack.dev.config.js"
+    "start": "webpack-dev-server --config webpack.config.js"
   }
 }

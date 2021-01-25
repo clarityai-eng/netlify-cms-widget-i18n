@@ -14,7 +14,7 @@
     "editor",
     "nested-json"
   ],
-  "homepage": "https://github.com/arturogalan/netlify-cms-widget-i18n#readme",
+  "homepage": "https://github.com/clarityai-eng/netlify-cms-widget-i18n#readme",
   "license": "MIT",
   "main": "dist/main.js",
   "devDependencies": {

@@ -52,6 +52,7 @@
     "prepublishOnly": "npm run build",
     "build:demo": "webpack --display errors-only --devtool source-map --config webpack.config.js",
     "build:package": "babel src --out-dir dist --source-maps",
+    "example": "webpack --display errors-only --devtool source-map --config webpack.config.js",
     "start": "webpack-dev-server --config webpack.config.js"
   }
 }

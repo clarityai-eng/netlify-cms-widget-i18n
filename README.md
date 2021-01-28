@@ -13,6 +13,11 @@ You will have a widget to manage your key-value internazionalization files with:
   -Search and filter
 
 
+## GIF
+Here's an animation of the CMS widget.
+![Screenshot gif](https://github.com/LukeStorry/netlify-cms-widget-nested-json/raw/master/netlifyWidgeti18n.gif)
+
+
 ## Installation
 
 ### As an npm package:

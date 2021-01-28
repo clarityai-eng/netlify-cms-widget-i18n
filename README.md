@@ -14,8 +14,8 @@ You will have a widget to manage your key-value internazionalization files with:
 
 
 ## GIF
-Here's an animation of the CMS widget.
-![Screenshot gif](https://github.com/LukeStorry/netlify-cms-widget-nested-json/raw/master/netlifyWidgeti18n.gif)
+Here's an animation of the CMS widget.  
+![Screenshot gif](https://github.com/clarityai-eng/netlify-cms-widget-i18n/raw/main/netlifyWidgeti18n.gif)
 
 
 ## Installation

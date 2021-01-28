@@ -1,6 +1,6 @@
 {
   "name": "netlify-cms-widget-i18n",
-  "version": "0.0.6",
+  "version": "1.0.0",
   "description": "A Netlify CMS widget to edit and manage i18n files",
   "contributors": [
     "Arturo Galan <arturo.galan@gmail.com> (https://arturogalan.com)"

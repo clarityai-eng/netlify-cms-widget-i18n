@@ -4,58 +4,71 @@
 
 [![npm version](https://img.shields.io/npm/v/netlify-cms-widget-i18n)](https://www.npmjs.com/netlify-cms-widget-i18n)
 
+This is a widget to handle your internazionalization files that uses the awesome table component (Handsometable)[https://handsontable.com/] on its Non-commercial version, that you can use for your MIT projects.
+
+You will have a widget to manage your key-value internazionalization files with:
+  -Key duplicate detection
+  -Copy/paste capable
+  -Insert/delete rows
+  -Search and filter
+
+
 ## Installation
 
 ### As an npm package:
 
 ```shell
 yarn add netlify-cms-widget-i18n
+
+or
+
+npm install --save netlify-cms-widget-i18n
 ```
 
 ```js
-import I18n from 'netlify-cms-widget-i18n'
+import NetlifyCmsWidgetI18n from 'netlify-cms-widget-i18n'
 
 CMS.registerWidget('I18n', I18nControl, I18nPreview)
 ```
 
-### Via `script` tag:
-
-```html
-<script src="https://unpkg.com/netlify-cms-widget-i18n"></script>
-
-<script>
-const {controlComponent, previewComponent} = NetlifyCmsWidgetI18n;
-  CMS.registerWidget('i18n', NetlifyCmsWidgetI18n.controlComponent, NetlifyCmsWidgetI18n.previewComponent)
-</script>
-```
-
 ## Usage
 
-Add to your Netlify CMS configuration:
-Add a collection per language that you want to support with your i18n files
-For example, English and Spanish should be configured like:
+Add to your Netlify CMS configuration a collection per language that you want to support with your i18n files.
+A field named title is required to be able to give the JSON file a name when creating new ones, and also a prop named title will have this value inside the i18n JSON file itself.
+A second field with widget: 'i18n' will be the widget itself, the field name inside this one will be the name of the prop inside the JSON file.
+If name: "en" then the i18n JSON file will be
+{
+  "en": {
+    "MY_KEY": "My literal in english"
+  }
+}
+For example, English and Spanish can be configured like:
 
 ```yaml
 collections:
-  - name: "spanish-i18-file"
-    label: "Spanish file"
-    folder: "content/i18n/es"
-    create: true
-    preview: false,
-    fields:
-      - { name: title, widget: string, pattern: ['^(?!.*\.json$).*$','A JSON file name can have no spaces or special characters'], hint: 'The JSON file name (do not include folder or file extension) and a field 'name' inside of the JSON file. *NOTE: When modifying an existing file changes in this name only will change the field called 'name' inside the file content.'}
-      - { name: es, label: i18n content, widget: i18n }
-  - name: "english-i18-file"
-    label: "English file"
+  - name: "english-i18n-file"
+    label: "English files"
     folder: "content/i18n/en"
+    extension: json
     create: true
-    preview: false,
+    editor:
+      preview: false
     fields:
-      - { name: title, widget: string, pattern: ['^(?!.*\.json$).*$','A JSON file name can have no spaces or special characters'], hint: 'The JSON file name (do not include folder or file extension) and a field 'name' inside of the JSON file. *NOTE: When modifying an existing file changes in this name only will change the field called 'name' inside the file content.'}
-      - { name: en, label: i18n content, widget: i18n }
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "i18n content", name: "en", widget: "i18n", pattern: ['^(?!.*\.json$).*$','A JSON file name can have no spaces or special characters']}
+  - name: "spanish-i18n-file"
+    label: "Spanish files"
+    folder: "content/i18n/es"
+    extension: json
+    create: true
+    editor:
+      preview: false
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "i18n content", name: "es", widget: "i18n", pattern: ['^(?!.*\.json$).*$','A JSON file name can have no spaces or special characters']}
 ```
 
 
 ## Support
 
-For help with this widget, open an [issue](https://github.com/<user>/<repo>)
+For help with this widget, open an [issue](https://github.com/clarityai-eng/netlify-cms-widget-i18n/issues)

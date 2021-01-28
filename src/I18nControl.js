@@ -4,10 +4,6 @@ import { HotTable, HotColumn } from '@handsontable/react';
 import Handsontable from 'handsontable';
 import 'handsontable/dist/handsontable.full.css';
 import './I18nControl.css';
-import { List } from 'immutable';
-
-import { Map } from 'immutable';
-
  export default class I18nControl extends React.Component {
 
   constructor(props) {
@@ -85,9 +81,7 @@ import { Map } from 'immutable';
     // viewportRowRenderingOffset: 70,
     contextMenu: {
       items: {
-        'row_above': {
-          name: 'Insert row above this one (custom name)'
-        },
+        'row_above': {},
         'row_below': {},
         'remove_row': {},
       }
@@ -256,18 +250,13 @@ import { Map } from 'immutable';
     const collectioni18EditorWidgetField = collectionFieldsArray.find((el)=> el.widget.toLowerCase().includes('i18n'));
     const JSONFilePropName = collectioni18EditorWidgetField.name;
 
-    if (typeof value === 'object' && value !== null) {
-      if(value._root) {        
-        const receivedObject = JSON.parse(this.props.entry.get('raw'));
-        this.stateValue = this.convertToFlatArray(receivedObject[JSONFilePropName]);
-      } else {
-        // Initialize the table object to have at least 1 empty row
-        if(!this.stateValue.length) {
-          this.stateValue.push({key: '', value: ''})
-        }
-      }
+    if (typeof value === 'object' && value !== null && value._root) {
+      const receivedObject = JSON.parse(this.props.entry.get('raw'));
+      this.stateValue = this.convertToFlatArray(receivedObject[JSONFilePropName]);
     }
-    
+    if (isNewRecord && !this.stateValue.length) {      
+      this.stateValue.push({key: '', value: ''})
+    }
     return (
       <section>
         <div
@@ -276,7 +265,7 @@ import { Map } from 'immutable';
         >
         {
           <div class="header-info">
-          {!filePath && <div><span>You are creating a new file inside: </span><span class="italic">/{fileFolder}</span></div>}
+          {!filePath && <div><span>You are creating a new file inside: </span><span class="italic">/{fileFolder}</span>, the name of the file will be the title 👆🏽</div>}
           {!!filePath && <div><span>You are editing: </span><span class="italic">/{filePath}</span></div>}
           {<div>The name of the main prop in the JSON file is: {JSONFilePropName}</div>}
         </div>

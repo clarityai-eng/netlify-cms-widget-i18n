@@ -4,13 +4,13 @@
 
 [![npm version](https://img.shields.io/npm/v/netlify-cms-widget-i18n)](https://www.npmjs.com/netlify-cms-widget-i18n)
 
-This is a widget to handle your internazionalization files that uses the awesome table component (Handsometable)[https://handsontable.com/] on its Non-commercial version, that you can use for your MIT projects.
+This is a widget to handle your internationalization files with Netlify CMS that you can use for your MIT projects. This widget uses the awesome table component [Handsometable](https://handsontable.com/) on its Non-commercial version.
 
-You will have a widget to manage your key-value internazionalization files with:
+Once installed, you will have a widget to manage your key-value internazionalization JSON files with:
   -Key duplicate detection
   -Copy/paste capable
   -Insert/delete rows
-  -Search and filter
+  -Search and filter the content for large files
 
 
 ## GIF

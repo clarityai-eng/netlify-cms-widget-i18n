@@ -38,15 +38,18 @@ CMS.registerWidget('I18n', I18nControl, I18nPreview)
 
 ## Usage
 
-Add to your Netlify CMS configuration a collection per language that you want to support with your i18n files.
-A field named title is required to be able to give the JSON file a name when creating new ones, and also a prop named title will have this value inside the i18n JSON file itself.
-A second field with widget: 'i18n' will be the widget itself, the field name inside this one will be the name of the prop inside the JSON file.
-If name: "en" then the i18n JSON file will be
+Add to your Netlify CMS configuration a collection per language that you want to support with your i18n files.  
+A field named title is required to be able to give the JSON file a name when creating new ones, and also a prop named title will have this value inside the i18n JSON file itself.  
+A second field with widget: 'i18n' will be the widget itself, the field name inside this one will be the name of the prop inside the JSON file.  
+If name: "en" then the i18n JSON file will be  
+```json
 {
   "en": {
     "MY_KEY": "My literal in english"
   }
 }
+```
+
 For example, English and Spanish can be configured like:
 
 ```yaml

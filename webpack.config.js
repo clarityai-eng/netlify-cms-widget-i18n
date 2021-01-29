@@ -1,8 +1,9 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const BrotliPlugin = require('brotli-webpack-plugin');
 
 const developmentConfig = {
-  mode: 'development',
+  mode: 'production',
   entry: './dev/index.js',
   output: {
     path: path.resolve(__dirname, 'public'),
@@ -25,10 +26,27 @@ const developmentConfig = {
       },
     ],
   },
+  optimization: {
+		splitChunks: {
+			cacheGroups: {
+				commons: {
+					test: /[\\/]node_modules[\\/]/,
+					name: 'vendors',
+					chunks: 'all'
+				}
+			}
+		}
+	},  
   plugins: [
     new HtmlWebpackPlugin(),
+    new BrotliPlugin({
+      asset: '[path].br[query]',
+      test: /\.(js|css|html|svg)$/,
+      threshold: 10240,
+      minRatio: 0.8
+    })
   ],
-  devtool: 'eval-source-map',
+  devtool: '',
 }
 
 const productionConfig = {

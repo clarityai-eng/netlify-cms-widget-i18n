@@ -1,5 +1,7 @@
-node_modules
-dist
-public
+node_modules/*
+dist/*
+public/*
+dev/*
 *.log
-demo.gif
+netlifyWidgeti18n.gif
+*.tgz

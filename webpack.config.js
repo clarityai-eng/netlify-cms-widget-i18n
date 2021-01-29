@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const BrotliPlugin = require('brotli-webpack-plugin');
 
 const developmentConfig = {
-  mode: 'develop',
+  mode: 'development',
   entry: './dev/index.js',
   output: {
     path: path.resolve(__dirname, 'public'),

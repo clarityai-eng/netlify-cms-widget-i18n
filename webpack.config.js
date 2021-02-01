@@ -63,6 +63,17 @@ const productionConfig = {
       },      
     ],
   },
+  optimization: {
+		splitChunks: {
+			cacheGroups: {
+				commons: {
+					test: /[\\/]node_modules[\\/]/,
+					name: 'vendors',
+					chunks: 'all'
+				}
+			}
+		}
+	},    
   plugins: [
     new BrotliPlugin({
       asset: '[path].br[query]',

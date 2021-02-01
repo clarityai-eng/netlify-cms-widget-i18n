@@ -60,20 +60,21 @@ const productionConfig = {
       {
         test: /\.css$/,
         loader: ['style-loader', 'css-loader'],
-      },      
+      },
+      // {
+      //   test: require.resolve('hot-formula-parser/dist/formula-parser.js'),
+      //   use: 'ignore-loader'
+      // },
+      {
+        test: require.resolve('handsontable/es/3rdparty/walkontable/src/index.js'),
+        use: 'ignore-loader'
+      },
+      {
+        test: require.resolve('handsontable/es/editors/index.js'),
+        use: 'ignore-loader'
+      }                       
     ],
   },
-  optimization: {
-		splitChunks: {
-			cacheGroups: {
-				commons: {
-					test: /[\\/]node_modules[\\/]/,
-					name: 'vendors',
-					chunks: 'all'
-				}
-			}
-		}
-	},    
   plugins: [
     new BrotliPlugin({
       asset: '[path].br[query]',
